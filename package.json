@@ -4,8 +4,22 @@
   "description": "",
   "main": "server1.js",
   "scripts": {
+    "start": "npm-run-all --parallel start:server1 start:server2",
+    "start:server1": "PORT=3050 nodemon --exec babel-node server1.js",
+    "start:server2": "PORT=3051 nodemon --exec babel-node server2.js",
     "test": "mocha"
   },
   "author": "eauc",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "babel": "^6.5.2",
+    "babel-cli": "^6.18.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.18.0",
+    "babel-preset-es2015": "^6.18.0",
+    "body-parser": "^1.15.2",
+    "consign": "^0.1.2",
+    "express": "^4.14.0",
+    "nodemon": "^1.11.0",
+    "npm-run-all": "^4.0.0"
+  }
 }
