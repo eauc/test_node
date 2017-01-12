@@ -1,15 +1,14 @@
-import agent from '../../services/agent';
+// import agent from '../../services/agent';
+import { dispatch } from '../../services/state';
 
 module.exports = (app) => {
   app.get('/', indexRoute);
 };
 
-function indexRoute(_request_, response) {
-  agent('GET', 'http://localhost:3051/')
-		.then((response2) => {
-			response.json({
-				name: "server1",
-				server2: response2.body,
-			});
-		});
+function indexRoute(request, response) {
+  dispatch({
+    eventName: 'route-index',
+    request, response,
+    server: 'server1',
+  });
 }
