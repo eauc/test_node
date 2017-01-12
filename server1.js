@@ -9,5 +9,6 @@ consign({
   .then('libs')
   .then('routes/server1')
   .then('handlers')
+  .then('services/http.js')
   .then('boot.js')
   .into(app);
