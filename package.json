@@ -1,0 +1,11 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server1.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "eauc",
+  "license": "UNLICENSED"
+}
