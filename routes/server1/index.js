@@ -1,14 +1,12 @@
-// import agent from '../../services/agent';
-import { dispatch } from '../../services/state';
+import { dispatchRoute } from '../../services/http';
 
 module.exports = (app) => {
-  app.get('/', indexRoute);
-};
-
-function indexRoute(request, response) {
-  dispatch({
+  app.get('/', dispatchRoute({
     eventName: 'route-index',
-    request, response,
     server: 'server1',
-  });
-}
+  }));
+  app.get('/combined', dispatchRoute({
+    eventName: 'route-indexCombined',
+    server: 'server1',
+  }));
+};

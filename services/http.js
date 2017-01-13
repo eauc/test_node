@@ -7,15 +7,28 @@ module.exports = () => {
   registerEffect('httpRequest', httpRequestEffect);
   registerEffect('httpResponse', httpResponseEffect);
 };
+module.exports.dispatchRoute = dispatchRoute;
+
+function dispatchRoute(event) {
+  return (request, response) => {
+    console.log('dispatch-routing');
+    const routeDispatch = (event) => {
+      console.log('routeDispatch', event);
+      dispatch(event, {
+        dispatch: routeDispatch,
+        request,
+        response,
+      });
+    };
+    routeDispatch(event);
+  };
+}
 
 function httpRequestEffect({ method, url, data, onSuccess, onError },
-                           { request, response }) {
+                           _event_, { dispatch }) {
   agent(method, url, data)
     .then((res) => {
-      console.log('onSuccess', onSuccess, res.body);
       dispatch(R.pipe(
-        R.assoc('request', request),
-        R.assoc('response', response),
         R.assoc('httpData', res.body),
         R.assoc('httpResponse', res)
       )(onSuccess));
@@ -23,8 +36,6 @@ function httpRequestEffect({ method, url, data, onSuccess, onError },
     .catch((error) => {
       if (onError) {
         dispatch(R.pipe(
-          R.assoc('request', request),
-          R.assoc('response', response),
           R.assoc('httpError', error)
         )(onError));
       }
@@ -34,7 +45,7 @@ function httpRequestEffect({ method, url, data, onSuccess, onError },
     });
 }
 
-function httpResponseEffect({ status, data }, { response }) {
+function httpResponseEffect({ status, data }, __event__, { response }) {
   if (status) response.status(status);
   if (data) response.json(data);
 }

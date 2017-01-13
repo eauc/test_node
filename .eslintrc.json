@@ -13,11 +13,9 @@
     "spyOn": false
   },
   "plugins": [
-    "react"
   ],
   "ecmaFeatures": {
-    "modules": true,
-    "jsx": true
+    "modules": true
   },
   "rules": {
     "array-bracket-spacing": ["error", "never"],

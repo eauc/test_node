@@ -13,8 +13,8 @@ function registerEffect(effectName, effect) {
 }
 
 function effects(handler) {
-  return function (state, event) {
-    const effectsMap = handler(state, event);
+  return function (event, coeffects) {
+    const effectsMap = handler(event, coeffects);
     R.forEach((effectName) => {
       const effectValue = effectsMap[effectName];
       if (!EFFECTS[effectName]) {
@@ -22,7 +22,7 @@ function effects(handler) {
         return;
       }
       console.info(`Resolve effect ${effectName}`, effectValue);
-      EFFECTS[effectName](effectValue, event);
+      EFFECTS[effectName](effectValue, event, coeffects);
     }, R.without(['state'], R.keys(effectsMap)));
     return effectsMap.state;
   };

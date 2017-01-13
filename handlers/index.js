@@ -3,20 +3,11 @@ import { effects } from '../middlewares/effects';
 
 module.exports = () => {
   registerHandler('route-index', [effects], routeIndexHandler);
-  registerHandler('route-indexWithOtherServer', [effects], routeIndexWithOtherServerHandler);
+  registerHandler('route-indexCombined', [effects], routeIndexCombinedHandler);
+  registerHandler('route-indexCombinedResponse', [effects], routeIndexCombinedResponseHandler);
 };
 
-function routeIndexHandler(_state_, event) {
-  const { server } = event;
-  if ('server1' === server) {
-    return {
-      httpRequest: {
-        method: 'GET',
-        url: 'http://localhost:3051',
-        onSuccess: { eventName: 'route-indexWithOtherServer', server },
-      },
-    };
-  }
+function routeIndexHandler({ server }) {
   return {
     httpResponse: {
       data: { server },
@@ -24,8 +15,17 @@ function routeIndexHandler(_state_, event) {
   };
 }
 
-function routeIndexWithOtherServerHandler(_state_, { server, httpData }) {
-  console.log('route2', server, httpData);
+function routeIndexCombinedHandler({ server }) {
+  return {
+    httpRequest: {
+      method: 'GET',
+      url: server === 'server1' ? 'http://localhost:3051' : 'http://localhost:3050',
+      onSuccess: { eventName: 'route-indexCombinedResponse', server },
+    },
+  };
+}
+
+function routeIndexCombinedResponseHandler({ server, httpData }) {
   return {
     httpResponse: {
       data: {
