@@ -5,8 +5,8 @@
   "main": "server1.js",
   "scripts": {
     "start": "npm-run-all --parallel start:server1 start:server2",
-    "start:server1": "PORT=3050 nodemon --exec babel-node server1.js",
-    "start:server2": "PORT=3051 nodemon --exec babel-node server2.js",
+    "start:server1": "NAME=server1 nodemon --exec babel-node server1.js",
+    "start:server2": "NAME=server2 nodemon --exec babel-node server2.js",
     "test": "mocha"
   },
   "author": "eauc",
@@ -24,6 +24,7 @@
     "npm-run-all": "^4.0.0",
     "ramda": "^0.23.0",
     "superagent": "^3.3.2",
-    "superagent-promise": "^1.1.0"
+    "superagent-promise": "^1.1.0",
+    "winston": "^2.3.0"
   }
 }

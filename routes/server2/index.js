@@ -1,6 +1,5 @@
-import { dispatchRoute } from '../../services/http';
-
 module.exports = (app) => {
+  const dispatchRoute = app.services.http.dispatchRoute;
   app.get('/', dispatchRoute({
     eventName: 'route-index',
     server: 'server2',

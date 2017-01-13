@@ -6,9 +6,13 @@ const app = express();
 consign({
   verbose: process.env.NODE_ENV !== 'production',
 }).include('config.js')
-  .then('libs')
-  .then('routes/server2')
-  .then('handlers')
+  .then('libs.js')
+  .then('models')
+  .then('services/logger.js')
+  .then('services/state.js')
+  .then('middlewares')
   .then('services/http.js')
+  .then('handlers')
+  .then('routes/server2')
   .then('boot.js')
   .into(app);

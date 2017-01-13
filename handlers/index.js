@@ -1,7 +1,7 @@
-import { registerHandler } from '../services/state';
-import { effects } from '../middlewares/effects';
+module.exports = (app) => {
+  const registerHandler = app.services.state.registerHandler;
+  const effects = app.middlewares.effects.effects;
 
-module.exports = () => {
   registerHandler('route-index', [effects], routeIndexHandler);
   registerHandler('route-indexCombined', [effects], routeIndexCombinedHandler);
   registerHandler('route-indexCombinedResponse', [effects], routeIndexCombinedResponseHandler);
