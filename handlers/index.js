@@ -1,30 +1,37 @@
-import R from 'ramda';
 import { registerHandler } from '../services/state';
 import { effects } from '../middlewares/effects';
 
 module.exports = () => {
   registerHandler('route-index', [effects], routeIndexHandler);
-  registerHandler('route-indexWithOtherServer', routeIndexWithOtherServerHandler);
+  registerHandler('route-indexWithOtherServer', [effects], routeIndexWithOtherServerHandler);
 };
 
 function routeIndexHandler(_state_, event) {
-  const { response, server } = event;
+  const { server } = event;
   if ('server1' === server) {
     return {
-      http: {
+      httpRequest: {
         method: 'GET',
         url: 'http://localhost:3051',
-        onSuccess: R.assoc('eventName', 'route-indexWithOtherServer', event),
+        onSuccess: { eventName: 'route-indexWithOtherServer', server },
       },
     };
   }
-  return response.json({ server });
+  return {
+    httpResponse: {
+      data: { server },
+    },
+  };
 }
 
-function routeIndexWithOtherServerHandler(_state_,
-                                          { response, server, httpData }) {
-  return response.json({
-    server,
-    other: httpData,
-  });
+function routeIndexWithOtherServerHandler(_state_, { server, httpData }) {
+  console.log('route2', server, httpData);
+  return {
+    httpResponse: {
+      data: {
+        server,
+        other: httpData,
+      },
+    },
+  };
 }

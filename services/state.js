@@ -20,6 +20,7 @@ function dispatch(event) {
     errorResponse(event, `Unknown event "${eventName}"`);
     return;
   }
+  console.log(`Resolve event "${eventName}"`);
   Promise
     .resolve(HANDLERS[eventName]({}, event))
     .catch((error) => errorResponse(event, error));

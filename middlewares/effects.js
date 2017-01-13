@@ -13,9 +13,7 @@ function registerEffect(effectName, effect) {
 }
 
 function effects(handler) {
-  console.log('effects build', handler);
   return function (state, event) {
-    console.log('effects', state, event);
     const effectsMap = handler(state, event);
     R.forEach((effectName) => {
       const effectValue = effectsMap[effectName];
