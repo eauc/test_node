@@ -11,22 +11,6 @@ module.exports = ({
   return {
     dispatchRoute,
   };
-module.exports.dispatchRoute = dispatchRoute;
-
-function dispatchRoute(event) {
-  return (request, response) => {
-    console.log('dispatch-routing');
-    const routeDispatch = (event) => {
-      console.log('routeDispatch', event);
-      dispatch(event, {
-        dispatch: routeDispatch,
-        request,
-        response,
-      });
-    };
-    routeDispatch(event);
-  };
-}
 
   function dispatchRoute(event) {
     return (request, response) => {

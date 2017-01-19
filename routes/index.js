@@ -1,11 +1,16 @@
 module.exports = (app) => {
-  const dispatchRoute = app.services.http.dispatchRoute;
+  const {
+    services: { http: { dispatchRoute } },
+    config: { name },
+  } = app;
+
   app.get('/', dispatchRoute({
     eventName: 'route-index',
-    server: 'server2',
+    server: name,
   }));
+
   app.get('/combined', dispatchRoute({
     eventName: 'route-indexCombined',
-    server: 'server2',
+    server: name,
   }));
 };

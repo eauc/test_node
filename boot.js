@@ -1,6 +1,10 @@
 module.exports = (app) => {
-  const { services: { logger } } = app;
+  const {
+    services: { logger, state: { dispatch } },
+  } = app;
+
   app.listen(app.get('port'), () => {
     logger('info', `Test app - Port ${app.get('port')}`);
+    dispatch({ eventName: 'state-init' });
   });
 };

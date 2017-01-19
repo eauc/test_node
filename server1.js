@@ -7,12 +7,11 @@ consign({
   verbose: process.env.NODE_ENV !== 'production',
 }).include('config.js')
   .then('libs.js')
-  .then('models')
   .then('services/logger.js')
-  .then('services/state.js')
   .then('middlewares')
+  .then('services/state.js')
   .then('services/http.js')
   .then('handlers')
-  .then('routes/server1')
+  .then('routes')
   .then('boot.js')
   .into(app);

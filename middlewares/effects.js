@@ -24,7 +24,7 @@ module.exports = ({ services: { logger } }) => {
         }
         logger('info', `Resolve effect ${effectName}`, effectValue);
         EFFECTS[effectName](effectValue, event, coeffects);
-      }, R.without(['state'], R.keys(effectsMap)));
+      }, R.keys(effectsMap));
       return effectsMap.state;
     };
   }
