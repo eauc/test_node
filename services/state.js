@@ -6,7 +6,7 @@ let STATE = {};
 
 module.exports = ({
   middlewares: { effects: { effects, registerEffect } },
-  services: { logger },
+  services: { logger: { default: logger } },
 }) => {
   registerEffect('dispatch', dispatchEffect);
   registerEffect('state', stateEffect);

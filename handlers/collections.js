@@ -4,34 +4,40 @@ import entryModel from '../models/entry';
 
 
 module.exports = ({
-  middlewares: { effects: { effects } },
+  middlewares: { logger: { logger }, effects: { effects } },
   services: { state: { registerInit, registerHandler } },
 }) => {
-  registerHandler('state-initCollection', [effects], stateInitCollectionHandler);
+  const middlewares = [
+    logger('collection'),
+    effects,
+  ];
+  registerHandler('state-initCollection', middlewares, stateInitCollectionHandler);
   registerInit('state-initCollection');
 
-  registerHandler('route-collectionList', [effects], routeCollectionListHandler);
-  registerHandler('route-collectionListCombined', [effects], routeCollectionListCombinedHandler);
-  registerHandler('route-collectionListCombinedResponse', [effects], routeCollectionListCombinedResponseHandler);
-  registerHandler('route-collectionCreate', [effects], routeCollectionCreateHandler);
-  registerHandler('route-collectionFind', [effects], routeCollectionFindHandler);
-  registerHandler('route-collectionFindCombined', [effects], routeCollectionFindCombinedHandler);
-  registerHandler('route-collectionFindCombinedResponse', [effects], routeCollectionCombinedResponseHandler);
-  registerHandler('route-collectionUpdate', [effects], routeCollectionUpdateHandler);
-  registerHandler('route-collectionUpdateCombined', [effects], routeCollectionUpdateCombinedHandler);
-  registerHandler('route-collectionUpdateCombinedResponse', [effects], routeCollectionCombinedResponseHandler);
-  registerHandler('route-collectionRemove', [effects], routeCollectionRemoveHandler);
-  registerHandler('route-collectionRemoveCombined', [effects], routeCollectionRemoveCombinedHandler);
-  registerHandler('route-collectionRemoveCombinedResponse', [effects], routeCollectionRemoveCombinedResponseHandler);
+  registerHandler('route-collectionList', middlewares, routeCollectionListHandler);
+  registerHandler('route-collectionListCombined', middlewares, routeCollectionListCombinedHandler);
+  registerHandler('route-collectionListCombinedResponse', middlewares, routeCollectionListCombinedResponseHandler);
+  registerHandler('route-collectionCreate', middlewares, routeCollectionCreateHandler);
+  registerHandler('route-collectionFind', middlewares, routeCollectionFindHandler);
+  registerHandler('route-collectionFindCombined', middlewares, routeCollectionFindCombinedHandler);
+  registerHandler('route-collectionFindCombinedResponse', middlewares, routeCollectionCombinedResponseHandler);
+  registerHandler('route-collectionUpdate', middlewares, routeCollectionUpdateHandler);
+  registerHandler('route-collectionUpdateCombined', middlewares, routeCollectionUpdateCombinedHandler);
+  registerHandler('route-collectionUpdateCombinedResponse', middlewares, routeCollectionCombinedResponseHandler);
+  registerHandler('route-collectionRemove', middlewares, routeCollectionRemoveHandler);
+  registerHandler('route-collectionRemoveCombined', middlewares, routeCollectionRemoveCombinedHandler);
+  registerHandler('route-collectionRemoveCombinedResponse', middlewares, routeCollectionRemoveCombinedResponseHandler);
 };
 
-function stateInitCollectionHandler(_event_, { state }) {
+function stateInitCollectionHandler(_event_, { state, logger }) {
+  logger('info', 'stateInitCollectionHandler');
   return {
     state: R.assoc('collection', [], state),
   };
 }
 
-function routeCollectionListHandler(_event_, { state }) {
+function routeCollectionListHandler(_event_, { state, logger }) {
+  logger('info', 'routeCollectionListHandler');
   const data = {
     link: '/collection',
     collection: R.propOr([], 'collection', state),
@@ -43,7 +49,8 @@ function routeCollectionListHandler(_event_, { state }) {
   };
 }
 
-function routeCollectionListCombinedHandler({ server }) {
+function routeCollectionListCombinedHandler({ server }, { logger }) {
+  logger('info', 'routeCollectionListCombinedHandler');
   return {
     httpRequest: {
       method: 'GET',
@@ -53,13 +60,17 @@ function routeCollectionListCombinedHandler({ server }) {
   };
 }
 
-function routeCollectionListCombinedResponseHandler({ httpData }, { state }) {
+function routeCollectionListCombinedResponseHandler(
+  { httpData },
+  { state, logger }
+) {
+  logger('info', 'routeCollectionListCombinedResponseHandler');
   const data = {
     link: '/collection/combined',
     collection: R.concat(
-			R.propOr([], 'collection', state),
-			R.propOr([], 'collection', httpData)
-		),
+      R.propOr([], 'collection', state),
+      R.propOr([], 'collection', httpData)
+    ),
   };
   return {
     httpResponse: {
@@ -68,7 +79,8 @@ function routeCollectionListCombinedResponseHandler({ httpData }, { state }) {
   };
 }
 
-function routeCollectionCreateHandler(_event_, { request, state }) {
+function routeCollectionCreateHandler(_event_, { request, state, logger }) {
+  logger('info', 'routeCollectionCreateHandler');
   const entry = entryModel.create(request.body);
   const data = {
     link: `/collection/${entry.id}`,
@@ -84,14 +96,19 @@ function routeCollectionCreateHandler(_event_, { request, state }) {
   };
 }
 
-function routeCollectionFindHandler(_event_, { request, state }) {
+function routeCollectionFindHandler(_event_, { request, state, logger }) {
+  logger('info', 'routeCollectionFindHandler');
   const { params: { id } } = request;
   return collectionFindInState({ id }, state) || {
     httpResponse: { status: 404, data: { link: `/collection/${id}` } },
   };
 }
 
-function routeCollectionFindCombinedHandler({ server }, { request, state }) {
+function routeCollectionFindCombinedHandler(
+  { server },
+  { request, state, logger }
+) {
+  logger('info', 'routeCollectionFindCombinedHandler');
   const { params: { id } } = request;
   return collectionFindInState({ id }, state) || {
     httpRequest: {
@@ -120,18 +137,21 @@ function collectionFindInState({ id }, state) {
   return null;
 }
 
-function routeCollectionCombinedResponseHandler({
-	httpStatus, httpData, server, id,
-}) {
+function routeCollectionCombinedResponseHandler(
+  { httpStatus, httpData, server, id },
+  { logger }
+) {
+  logger('info', 'routeCollectionCombinedResponseHandler');
   const data = (200 === httpStatus
-								? updateOtherServerLink({ server }, httpData)
-								: { link: `/collection/combined/${id}` });
+                ? updateOtherServerLink({ server }, httpData)
+                : { link: `/collection/combined/${id}` });
   return {
     httpResponse: { status: httpStatus, data },
   };
 }
 
-function routeCollectionUpdateHandler(_event_, { request, state }) {
+function routeCollectionUpdateHandler(_event_, { request, state, logger }) {
+  logger('info', 'routeCollectionUpdateHandler');
   const { params: { id } } = request;
   return collectionUpdateInState({ id, updateData: request.body }, state) || {
     httpResponse: {
@@ -141,7 +161,11 @@ function routeCollectionUpdateHandler(_event_, { request, state }) {
   };
 }
 
-function routeCollectionUpdateCombinedHandler({ server }, { request, state }) {
+function routeCollectionUpdateCombinedHandler(
+  { server },
+  { request, state, logger }
+) {
+  logger('info', 'routeCollectionUpdateCombinedHandler');
   const { params: { id } } = request;
   return collectionUpdateInState({ id, updateData: request.body }, state) || {
     httpRequest: {
@@ -178,12 +202,14 @@ function collectionUpdateInState({ id, updateData }, state) {
   };
 }
 
-function routeCollectionRemoveHandler(_event_, { request, state }) {
+function routeCollectionRemoveHandler(_event_, { request, state, logger }) {
+  logger('info', 'routeCollectionRemoveHandler');
   const { params: { id } } = request;
   return collectionRemoveInState({ id }, state);
 }
 
-function routeCollectionRemoveCombinedHandler({ server }, { request }) {
+function routeCollectionRemoveCombinedHandler({ server }, { request, logger }) {
+  logger('info', 'routeCollectionRemoveCombinedHandler');
   const { params: { id } } = request;
   return {
     httpRequest: {
@@ -195,7 +221,11 @@ function routeCollectionRemoveCombinedHandler({ server }, { request }) {
   };
 }
 
-function routeCollectionRemoveCombinedResponseHandler({ id }, { state }) {
+function routeCollectionRemoveCombinedResponseHandler(
+  { id },
+  { state, logger }
+) {
+  logger('info', 'routeCollectionRemoveCombinedResponseHandler');
   return collectionRemoveInState({ id }, state);
 }
 
@@ -224,8 +254,8 @@ function otherServerEntryUrl({ id }, server) {
 
 function updateOtherServerLink({ server }, data) {
   return R.over(
-		R.lensProp('link'),
-		(link) => `${otherServerUrl(server)}${link}`,
-		data
-	);
+    R.lensProp('link'),
+    (link) => `${otherServerUrl(server)}${link}`,
+    data
+  );
 }

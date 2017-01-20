@@ -1,18 +1,26 @@
+import R from 'ramda';
 import winston from 'winston';
 
 module.exports = ({ config: { name } }) => {
-  const loggerInstance = new (winston.Logger)({
-    transports: [
-      new (winston.transports.Console)({
-        colorize: 'all',
-        label: name,
-      }),
-    ],
-  });
+  const defaultLogger = create();
 
-  return logger;
+  return {
+    create,
+    default: defaultLogger,
+  };
 
-  function logger(...args) {
-    loggerInstance.log(...args);
+  function create(label) {
+    const loggerInstance = new (winston.Logger)({
+      transports: [
+        new (winston.transports.Console)({
+          colorize: 'all',
+          label: R.join('.', R.reject(R.isNil, [name, label])),
+        }),
+      ],
+    });
+
+    return function logger(...args) {
+      loggerInstance.log(...args);
+    };
   }
 };

@@ -26,9 +26,15 @@ module.exports = ({
   }
 
   function httpRequestEffect({ method, url, data, onSuccess, onError },
-                             _event_, { dispatch }) {
+                             _event_, { dispatch, request }) {
+    const id = R.pathOr(
+      'N/A',
+      ['headers','x-id'],
+      request
+    );
     agent(method, url)
-			.send(data)
+      .set('x-id', id)
+      .send(data)
       .then((res) => {
         dispatch(R.pipe(
           R.assoc('httpData', res.body),
@@ -39,8 +45,8 @@ module.exports = ({
       .catch((res) => {
         if (onError) {
           dispatch(R.pipe(
-						R.assoc('httpStatus', res.status),
-						R.assoc('httpResponse', res)
+            R.assoc('httpStatus', res.status),
+            R.assoc('httpResponse', res)
           )(onError));
         }
         else {

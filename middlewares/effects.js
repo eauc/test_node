@@ -2,7 +2,9 @@ import R from 'ramda';
 
 let EFFECTS = {};
 
-module.exports = ({ services: { logger } }) => {
+module.exports = ({
+  services: { logger: { default: logger } },
+}) => {
   return {
     effects,
     registerEffect,
