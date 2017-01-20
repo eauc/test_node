@@ -5,8 +5,8 @@
   "main": "server1.js",
   "scripts": {
     "start": "npm-run-all --parallel start:server1 start:server2",
-    "start:server1": "NAME=server1 nodemon --exec babel-node server1.js",
-    "start:server2": "NAME=server2 nodemon --exec babel-node server2.js",
+    "start:server1": "NAME=server1 nodemon --exec babel-node server.js",
+    "start:server2": "NAME=server2 nodemon --exec babel-node server.js",
     "test": "mocha"
   },
   "author": "eauc",
