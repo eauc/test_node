@@ -27,21 +27,24 @@ module.exports = ({
 
   function httpRequestEffect({ method, url, data, onSuccess, onError },
                              _event_, { dispatch }) {
-    agent(method, url, data)
+    agent(method, url)
+			.send(data)
       .then((res) => {
         dispatch(R.pipe(
           R.assoc('httpData', res.body),
+          R.assoc('httpStatus', res.status),
           R.assoc('httpResponse', res)
         )(onSuccess));
       })
-      .catch((error) => {
+      .catch((res) => {
         if (onError) {
           dispatch(R.pipe(
-            R.assoc('httpError', error)
+						R.assoc('httpStatus', res.status),
+						R.assoc('httpResponse', res)
           )(onError));
         }
         else {
-          throw error;
+          throw new Error('httpRequest error : no handler');
         }
       });
   }
