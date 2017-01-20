@@ -1,10 +1,12 @@
 import R from 'ramda';
+import request from 'request';
 const agent = require('superagent-promise')(require('superagent'), Promise);
 
 module.exports = ({
   middlewares: { effects: { registerEffect } },
   services: { state: { dispatch } },
 }) => {
+  registerEffect('httpPipe', httpPipeEffect);
   registerEffect('httpRequest', httpRequestEffect);
   registerEffect('httpResponse', httpResponseEffect);
 
@@ -23,6 +25,18 @@ module.exports = ({
       };
       routeDispatch(event);
     };
+  }
+
+  function httpPipeEffect({ method, url, data },
+                          _event_, { request: oldRequest, response }) {
+    const newRequest = request({
+      method,
+      url,
+      body: data,
+      json: true,
+      headers: oldRequest.headers,
+    });
+    newRequest.pipe(response);
   }
 
   function httpRequestEffect({ method, url, data, onSuccess, onError },

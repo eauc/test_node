@@ -2,11 +2,16 @@ import R from 'ramda';
 import collectionModel from '../models/collection';
 import entryModel from '../models/entry';
 
+let port;
+let otherPort;
+module.exports = (app) => {
+  port = app.get('port');
+  otherPort = port === 3050 ? 3051 : 3050;
 
-module.exports = ({
+  const {
   middlewares: { logger: { logger }, effects: { effects } },
   services: { state: { registerInit, registerHandler } },
-}) => {
+  } = app;
   const middlewares = [
     logger('collection'),
     effects,
@@ -39,7 +44,7 @@ function stateInitCollectionHandler(_event_, { state, logger }) {
 function routeCollectionListHandler(_event_, { state, logger }) {
   logger('info', 'routeCollectionListHandler');
   const data = {
-    link: '/collection',
+    link: serverCollectionUrl({ port }),
     collection: R.propOr([], 'collection', state),
   };
   return {
@@ -49,12 +54,12 @@ function routeCollectionListHandler(_event_, { state, logger }) {
   };
 }
 
-function routeCollectionListCombinedHandler({ server }, { logger }) {
+function routeCollectionListCombinedHandler(_event_, { logger }) {
   logger('info', 'routeCollectionListCombinedHandler');
   return {
     httpRequest: {
       method: 'GET',
-      url: otherServerCollectionUrl(server),
+      url: serverCollectionUrl({ port: otherPort }),
       onSuccess: { eventName: 'route-collectionListCombinedResponse' },
     },
   };
@@ -66,7 +71,7 @@ function routeCollectionListCombinedResponseHandler(
 ) {
   logger('info', 'routeCollectionListCombinedResponseHandler');
   const data = {
-    link: '/collection/combined',
+    link: `${serverCollectionUrl({ port })}/combined`,
     collection: R.concat(
       R.propOr([], 'collection', state),
       R.propOr([], 'collection', httpData)
@@ -83,7 +88,7 @@ function routeCollectionCreateHandler(_event_, { request, state, logger }) {
   logger('info', 'routeCollectionCreateHandler');
   const entry = entryModel.create(request.body);
   const data = {
-    link: `/collection/${entry.id}`,
+    link: serverEntryUrl({ port, id: entry.id }),
     entry,
   };
   return {
@@ -100,22 +105,20 @@ function routeCollectionFindHandler(_event_, { request, state, logger }) {
   logger('info', 'routeCollectionFindHandler');
   const { params: { id } } = request;
   return collectionFindInState({ id }, state) || {
-    httpResponse: { status: 404, data: { link: `/collection/${id}` } },
+    httpResponse: { status: 404, data: { link: serverEntryUrl({ port, id }) } },
   };
 }
 
 function routeCollectionFindCombinedHandler(
-  { server },
+  _event_,
   { request, state, logger }
 ) {
   logger('info', 'routeCollectionFindCombinedHandler');
   const { params: { id } } = request;
   return collectionFindInState({ id }, state) || {
-    httpRequest: {
+    httpPipe: {
       method: 'GET',
-      url: otherServerEntryUrl({ id }, server),
-      onSuccess: { eventName: 'route-collectionFindCombinedResponse', server, id },
-      onError: { eventName: 'route-collectionFindCombinedResponse', server, id },
+      url: serverEntryUrl({ port: otherPort, id }),
     },
   };
 }
@@ -127,7 +130,7 @@ function collectionFindInState({ id }, state) {
   );
   if (!R.isNil(entry)) {
     const data = {
-      link: `/collection/${id}`,
+      link: serverEntryUrl({ port, id }),
       entry,
     };
     return {
@@ -138,15 +141,12 @@ function collectionFindInState({ id }, state) {
 }
 
 function routeCollectionCombinedResponseHandler(
-  { httpStatus, httpData, server, id },
+  { httpStatus, httpData },
   { logger }
 ) {
   logger('info', 'routeCollectionCombinedResponseHandler');
-  const data = (200 === httpStatus
-                ? updateOtherServerLink({ server }, httpData)
-                : { link: `/collection/combined/${id}` });
   return {
-    httpResponse: { status: httpStatus, data },
+    httpResponse: { status: httpStatus, data: httpData },
   };
 }
 
@@ -170,7 +170,7 @@ function routeCollectionUpdateCombinedHandler(
   return collectionUpdateInState({ id, updateData: request.body }, state) || {
     httpRequest: {
       method: 'PUT',
-      url: otherServerEntryUrl({ id }, server),
+      url: serverEntryUrl({ port: otherPort, id }),
       data: request.body,
       onSuccess: { eventName: 'route-collectionUpdateCombinedResponse', server, id },
       onError: { eventName: 'route-collectionUpdateCombinedResponse', server, id },
@@ -189,7 +189,7 @@ function collectionUpdateInState({ id, updateData }, state) {
 
   entry = entryModel.update({ data: updateData }, entry);
   const data = {
-    link: `/collection/${id}`,
+    link: serverEntryUrl({ port, id }),
     entry,
   };
   return {
@@ -214,7 +214,7 @@ function routeCollectionRemoveCombinedHandler({ server }, { request, logger }) {
   return {
     httpRequest: {
       method: 'DELETE',
-      url: `http://localhost:${server === 'server1' ? 3051 : 3050}/collection/${id}`,
+      url: serverEntryUrl({ port: otherPort, id }),
       onSuccess: { eventName: 'route-collectionRemoveCombinedResponse', server, id },
       onError: { eventName: 'route-collectionRemoveCombinedResponse', server, id },
     },
@@ -240,22 +240,14 @@ function collectionRemoveInState({ id }, state) {
   };
 }
 
-function otherServerUrl(server) {
-  return `http://localhost:${server === 'server1' ? 3051 : 3050}`;
+function serverUrl({ port }) {
+  return `http://localhost:${port}`;
 }
 
-function otherServerCollectionUrl(server) {
-  return `${otherServerUrl(server)}/collection`;
+function serverCollectionUrl({ port }) {
+  return `${serverUrl({ port })}/collection`;
 }
 
-function otherServerEntryUrl({ id }, server) {
-  return `${otherServerCollectionUrl(server)}/${id}`;
-}
-
-function updateOtherServerLink({ server }, data) {
-  return R.over(
-    R.lensProp('link'),
-    (link) => `${otherServerUrl(server)}${link}`,
-    data
-  );
+function serverEntryUrl({ port, id }) {
+  return `${serverCollectionUrl({ port })}/${id}`;
 }

@@ -24,6 +24,7 @@
     "nodemon": "^1.11.0",
     "npm-run-all": "^4.0.0",
     "ramda": "^0.23.0",
+    "request": "^2.79.0",
     "superagent": "^3.3.2",
     "superagent-promise": "^1.1.0",
     "winston": "^2.3.0"
