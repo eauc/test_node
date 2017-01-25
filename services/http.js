@@ -3,6 +3,7 @@ import request from 'request';
 const agent = require('superagent-promise')(require('superagent'), Promise);
 
 module.exports = ({
+  config: { name: server },
   middlewares: { effects: { registerEffect } },
   services: { state: { dispatch } },
 }) => {
@@ -34,7 +35,7 @@ module.exports = ({
       url,
       body: data,
       json: true,
-      headers: oldRequest.headers,
+      headers: R.assoc('x-from', server, oldRequest.headers),
     });
     newRequest.pipe(response);
   }
@@ -48,6 +49,7 @@ module.exports = ({
     );
     agent(method, url)
       .set('x-id', id)
+      .set('x-from', server)
       .send(data)
       .then((res) => {
         dispatch(R.pipe(
