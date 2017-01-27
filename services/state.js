@@ -20,18 +20,18 @@ module.exports = ({
 
   function stateEffect(state) {
     STATE = state;
-    logger('info', 'new state', STATE);
+    logger('debug', 'new state', STATE);
   }
 
   function registerHandler(eventName, middlewaresOrHandler, handlerOrNull) {
     const middlewares = handlerOrNull ? middlewaresOrHandler : [R.identity];
     const handler = handlerOrNull ? handlerOrNull : middlewaresOrHandler;
-    logger('info', `Registering event ${eventName} handler`);
+    logger('debug', `Registering event ${eventName} handler`);
     HANDLERS[eventName] = R.compose(...R.flatten(middlewares))(handler);
   }
 
   function registerInit(eventName) {
-    logger('info', `Register init ${eventName}`);
+    logger('debug', `Register init ${eventName}`);
     INITS = R.append(eventName, INITS);
   }
 

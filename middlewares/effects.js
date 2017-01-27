@@ -11,7 +11,7 @@ module.exports = ({
   };
 
   function registerEffect(effectName, effect) {
-    logger('info', `Register effect ${effectName}`);
+    logger('debug', `Register effect ${effectName}`);
     EFFECTS[effectName] = effect;
   }
 
@@ -24,7 +24,7 @@ module.exports = ({
           logger('warn', `Unknown effect ${effectName}`, effectValue);
           return;
         }
-        logger('info', `Resolve effect ${effectName}`, effectValue);
+        logger('debug', `Resolve effect ${effectName}`, effectValue);
         EFFECTS[effectName](effectValue, event, coeffects);
       }, R.keys(effectsMap));
       return effectsMap.state;

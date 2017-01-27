@@ -1,0 +1,6 @@
+* test node [0/4]
+
+- [ ] log route event resolution in routeDispatch -> log with x-id
+- [ ] add swagger verification of requests
+- [ ] map request params route/header/query/body to event properties
+- [ ] dispatch side effect simple/queue ?

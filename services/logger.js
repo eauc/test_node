@@ -12,9 +12,10 @@ module.exports = ({ config: { name } }) => {
   function create(label) {
     const loggerInstance = new (winston.Logger)({
       transports: [
-        new (winston.transports.Console)({
+        new winston.transports.Console({
           colorize: 'all',
           label: R.join('.', R.reject(R.isNil, [name, label])),
+          level: 'debug',
         }),
       ],
     });
